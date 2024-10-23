@@ -107,7 +107,7 @@ export async function PATCH(req: Request, {params}: {params: {userId: string}}) 
       } as Prisma.KoasProfileUpdateInput,
     })
 
-    return NextResponse.json({message: "Koas profile update successfully"}, { status: 200 })
+    return NextResponse.json({data: updatedProfile, message: "Koas profile update successfully"}, { status: 200 })
 
   } catch (error) {
     console.error("Error updating KOAS profile", error)
@@ -167,9 +167,13 @@ export async function PUT(
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: {userId: string} }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: { userId: string } }
+) {
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get("userId") || params.userId
+  const reset = searchParams.get("reset") === "true" // Ambil opsi reset dari query
 
   try {
     if (!userId) {
@@ -180,29 +184,63 @@ export async function DELETE(req: Request, { params }: { params: {userId: string
     }
 
     const user = await db.users.findUnique({
-      where: { id: String(userId) },
-      include: { koasProfile: true },
+      where: {
+        id: userId,
+      },
+      include: {
+        koasProfile: true,
+      },
     })
 
     if (!user || !user.koasProfile) {
       return NextResponse.json(
-        { error: "KOAS profile not found" },
+        { error: "Koas profile not found" },
         { status: 404 }
       )
     }
 
-    await db.koasProfile.delete({
-      where: { userId: String(userId) },
-    })
+    if (reset) {
+      //   Jika reset = true, reset koasProfile menjadi null
+      const deletedProfile = await db.koasProfile.update({
+        where: {
+          userId: userId,
+        },
+        data: {
+          koasNumber: null,
+          faculty: null,
+          bio: null,
+          whatsappLink: null,
+        } as Prisma.PasienProfileUpdateInput,
+      })
 
-    return NextResponse.json({ message: "KOAS profile deleted" }, { status: 200 })
+      return NextResponse.json(
+        {
+          data: deletedProfile,
+          message: "Koas profile partially cleared successfully",
+        },
+        { status: 200 }
+      )
+    } else {
+      // Jika reset = false, hapus seluruh record koasProfile
+      const deletedProfile = await db.koasProfile.delete({
+        where: {
+          userId: userId,
+        },
+      })
 
+      return NextResponse.json(
+        {
+          data: deletedProfile,
+          message: "Koas profile completely deleted successfully",
+        },
+        { status: 200 }
+      )
+    }
   } catch (error) {
-    console.error("Error deleting KOAS profile:", error) // Log error
+    console.error("Error deleting Koas profile:", error) // Log error
     return NextResponse.json(
-      { error: "Error deleting KOAS profile" },
+      { error: "Error deleting Koas profile" },
       { status: 500 }
     )
   }
-
 }

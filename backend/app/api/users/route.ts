@@ -16,6 +16,9 @@ export async function GET(req: Request) {
       where: {
         ...query,
       } as Prisma.UsersWhereInput,
+      orderBy: {
+        username: "asc",
+      },
       include: { koasProfile: true, pasienProfile: true },
     })
 
