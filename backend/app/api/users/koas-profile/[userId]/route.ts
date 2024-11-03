@@ -62,7 +62,6 @@ export async function POST(
     })
 
     return NextResponse.json(koasProfile, { status: 201 })
-
   } catch (error) {
     console.error("Error creating KOAS profile:", error) // Log error
     return NextResponse.json(
@@ -72,7 +71,10 @@ export async function POST(
   }
 }
 
-export async function PATCH(req: Request, {params}: {params: {userId: string}}) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: { userId: string } }
+) {
   const { searchParams } = new URL(req.url)
   const userId = searchParams.get("userId") || params.userId
   const body = await req.json()
@@ -103,13 +105,15 @@ export async function PATCH(req: Request, {params}: {params: {userId: string}}) 
         koasNumber: body.koasNumber ?? user.koasProfile.koasNumber,
         faculty: body.faculty ?? user.koasProfile.faculty,
         bio: body.bio ?? user.koasProfile.bio,
-        whatsappLink: body.whatsappLink ?? user.koasProfile.whatsappLink, 
+        whatsappLink: body.whatsappLink ?? user.koasProfile.whatsappLink,
         status: body.status ?? user.koasProfile.status,
       } as Prisma.KoasProfileUpdateInput,
     })
 
-    return NextResponse.json({data: updatedProfile, message: "Koas profile update successfully"}, { status: 200 })
-
+    return NextResponse.json(
+      { data: updatedProfile, message: "Koas profile update successfully" },
+      { status: 200 }
+    )
   } catch (error) {
     console.error("Error updating KOAS profile", error)
     return NextResponse.json(
@@ -159,7 +163,6 @@ export async function PUT(
     })
 
     return NextResponse.json(updatedProfile, { status: 200 })
-
   } catch (error) {
     console.error("Error updating user profile:", error) // Log error
     return NextResponse.json(

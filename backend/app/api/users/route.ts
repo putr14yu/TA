@@ -76,7 +76,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    
     const username = `${firstname.toLowerCase()}.${lastname.toLowerCase()}`
 
     const newUser = await db.users.create({

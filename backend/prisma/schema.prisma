@@ -10,8 +10,8 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "mysql"
+  url       = env("DATABASE_URL")
 }
 
 enum Role {
@@ -107,7 +107,7 @@ model Posts {
   title              String
   desc               String
   patientRequirement Json?
-  status             StatusPost @default(Pending)// enum dapat ditambahkan jika ada daftar nilai yang terbatas
+  status             StatusPost @default(Pending) // enum dapat ditambahkan jika ada daftar nilai yang terbatas
   published          Boolean    @default(false)
   likes              Likes[]
   createdAt          DateTime   @default(now())
